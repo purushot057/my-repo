@@ -1,0 +1,43 @@
+Go to folder kafka_2.12-1.0.1\config and edit server.properties
+Replace log.dirs=.\logs
+Command to start kafka server:  .\bin\windows\kafka-server-start.bat .\config\server.properties
+Kafka should be running on http://localhost:9092
+
+
+Edit the PATH variable and add new entry as %ZOOKEEPER_HOME%\bin\ for zookeeper.
+Rename file zookeeper-3.4.10\zookeeper-3.4.10\conf\zoo_sample.cfg to zoo.cfg
+Command to start zookeper:  zkserver
+.\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties     ------ If using zookeper inside kafka
+Now, in the command prompt, enter the command zkserver and the zookeeper is up and running on http://localhost:2181
+
+
+.\bin\windows\kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic devglan-test --from-beginning
+
+.\bin\windows\kafka-console-producer.bat --bootstrap-server localhost:9092 --topic devglan-test
+
+https://kafka.apache.org/quickstart
+
+
+wmic process where "caption = 'java.exe' and commandline like '%server-2.properties%'" get processid
+
+taskkill /pid 19492 /f
+
+.\bin\windows\kafka-topics.bat --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic test
+
+.\bin\windows\kafka-topics.bat --list --bootstrap-server localhost:9092
+
+.\bin\windows\kafka-topics.bat --describe --bootstrap-server localhost:9092 --topic my-replicated-topic
+
+logstash.bat -f logstash.conf --config.reload.automatic
+
+curl -XPUT http://localhost:9200/acme-production  ------- >>> To create index in elastic search
+
+
+curl -XPOST -d '{"title":"Hello world"}' http://localhost:9200/acme-production/test/hello               >>>>>>>>>>> Create data 
+
+
+keytool -genkeypair -alias apiEncryptionKey -keyalg RSA -dname "CN=Purushottam Selvan,OU=API DEvelopment,O=tcs.com,L=Amsterdam,S=NA,C=NL" -keypass 1q2w3e4r -keystore apiEncryptionKey.jks -storepass 1q2w3e4r
+		
+		
+		
+		
