@@ -1,0 +1,374 @@
+https://springframework.guru/docker-cheat-sheet-for-spring-devlopers/
+
+docker service create \
+--name portainer \
+--publish 9000:9000 \
+--constraint 'node.role == manager' \
+--mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
+portainer/portainer \
+-H unix:///var/run/docker.sock
+
+docker ps -a
+docker images
+docker rmi image-id
+docker rm container-id
+docker run -d -t --name some_name image_name 
+docker exec -it container_name bash   --------------------------> docker execute interactively with the container with this bash command
+docker logs -f container_id
+docker images -q --no-trunc
+history | grep mongo
+docker kill container_id
+
+docker kill $(docker ps -q)   --------> kill all containers in quiet mode
+docker rm $(docker ps -a -q) ----------> remove all containers
+docker rmi $(docker images -q -f  dangling=true)
+docker rmi $(docker images -q)	
+docker volume rm $(docker volume ls -f dangling=true -q)
+
+
+ssh-keygen -t rsa
+
+ssh -i "~/.ssh/digitalocean" root@206.189.140.235
+
+
+ps -ef | grep docker 
+kill -9  pid
+reboot -f
+
+
+docker node promote node-02
+
+docker service ls
+
+docker service ps service_name
+
+docker swarm init --force-new-cluster 
+
+docker swarm join-token worker ------------------> Generate token from swarm node terminal using this which can be used to add a new worker node
+
+docker-machine create -d virtualbox node-2 ---------> Creating a host with name node-2
+
+eval $(docker-machine env node-2) ----------> To point the client to the host named node-2
+
+docker system info --format '{{.Name}}' -------------> To queries the remote Docker daemon for the host’s name.
+
+docker-machine ls -------------> To view the list of nodes including the manager in the swarm cluster
+
+curl https://start.spring.io/starter.zip -d bootVersion=2.3.0.M4 -d dependencies=web -o demo.zip  --------------> Create a spring boot project (OR 2.3.0.BUILD-SNAPSHOT)
+
+./mvnw spring-boot:build-image  -------------------------->  Building docker image using spring boot build packs
+
+java -Djarmode=layertools -jar target/demo-0.0.1-SNAPSHOT.jar list -----------------> we should now have a layered jar with jarmode support. Test it with this
+
+docker run -it --entrypoint sh demo:4.0.0-SNAPSHOT   -----------------------> Look indide docker image and then use ls -lsa , cd .. etc
+
+docker image history demo:4.0.0-SNAPSHOT    --------------------------------> Check how image was created 
+
+docker inspect --format='{{json .NetworkSettings.Networks}}'  db  ----------> Run the command to get the network details on where this container is connected.
+
+docker run -d --net=new_bridge --name db training/postgres    --------------------> Lets create a new container using image training/postgres to run a PostgreSQL db and tag this to the new network created
+
+docker network create -d bridge new_bridge    --------------------------> Lets create our new bridge network -d --> to specify the driver type (in this case its is bridge network)
+
+
+
+
+Use below plugin config for layered jars support  ::::
+
+<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>2.3.0.M4</version>	
+				<configuration>
+					<layers>
+						<enabled>true</enabled>
+					</layers>
+			</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+Use below  config for Spring Boot milestone parent :::
+	
+	<repositories>
+		<repository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+Use below content for Dockerfile for layered image generation :::
+
+FROM adoptopenjdk:11-jre-hotspot as builder
+MAINTAINER Purushottam STC
+WORKDIR application
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} application.jar
+RUN java -Djarmode=layertools -jar application.jar extract
+
+FROM adoptopenjdk:11-jre-hotspot
+WORKDIR application
+COPY --from=builder application/dependencies/ ./
+COPY --from=builder application/snapshot-dependencies/ ./
+COPY --from=builder application/resources/ ./
+COPY --from=builder application/spring-boot-loader/ ./
+COPY --from=builder application/application/ ./
+ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
+
+
+
+
+docker run -d -p 6033:3306 --name=docker-mysql --env="MYSQL_ROOT_PASSWORD=password" --env="MYSQL_PASSWORD=password" --env="MYSQL_DATABASE=authDB" mysql
+docker run -t --link docker-mysql:mysql -p 10222:10222 demo:latest
+
+
+
+docker run -d -t --link docker-mysql:mysql --env="SPRING_DATASOURCE_URL=jdbc:mysql://docker-mysql:3306/authDB?createDatabaseIfNotExist=true" --env="SPRING_DATASOURCE_USERNAME=root" --env="SPRING_DATASOURCE_PASSWORD=password" -p 9191:9191 authorizationservice:latest
+
+
+docker tag authorizationservice:latest purushot057/authorizationservice:latest
+docker push purushot057/authorizationservice:latest
+
+
+
+docker run --name puru-mysql -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -v tmp:/var/lib/myysql -p 3306:3306 -d mysql
+docker run -d --hostname puru-rabbit --name some-rabbit -p 8080:15672 -p 5671:5671 -p 5672:5672 rabbitmq:3-management
+
+
+
+docker build -t spring-boot-docker .
+docker run -p 9090:8080 spring-boot-docker:latest
+docker run --rm --name my-maven-project -v "$(pwd)":/usr/src/mymaven -w /usr/src/mymaven -v "/.m2":/root/.m2 maven:3.3.9-jdk-8-alpine mvn clean package
+
+
+
+FROM openjdk:8-jre-alpine
+
+ 
+ 
+ 
+FROM openjdk:8-jdk-alpine
+EXPOSE 8080
+ARG JAR_FILE=target/*.jar
+ADD ${JAR_FILE} app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]
+
+
+
+
+
+
+
+
+
+DOCKER STACK :::::::::::::::::::
+docker stack deploy -c docker-compose.yml my_stack
+
+
+echo "password" | docker secret create mysql.txt -
+
+
+
+
+
+
+mvn spring-boot: build-image
+
+
+
+
+
+
+
+
+## Use to run mysql db docker image
+docker run --name mysqldb -p 3306:3306 -e MYSQL_DATABASE=pageviewservice -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -d mysql
+
+## Use to run RabbitMQ
+docker run --name rabbitmq -p 5671:5671 -p 5672:5672 rabbitmq
+
+## does not work
+docker run --name pageviewservice -p 8081:8081  springframeworkguru/pageviewservice
+
+## does not work
+docker run --name pageviewservice -p 8081:8081 -e SPRING_DATASOURCE_URL=jdbc:mysql://127.0.0.1:3306/pageviewservice -e SPRING_PROFILES_ACTIVE=mysql springframeworkguru/pageviewservice
+
+docker run --name pageviewservice -p 8081:8081 \
+--link rabbitmq:rabbitmq \
+--link mysqldb:mysqldb \
+-e SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/pageviewservice \
+-e SPRING_PROFILES_ACTIVE=mysql  \
+-e SPRING_RABBITMQ_HOST=rabbitmq \
+springframeworkguru/pageviewservice
+
+
+# Example MVN Command for CI
+mvn clean package verify docker:push
+
+#start docker compose in background
+docker-compose up -d
+
+#stop docker-compose
+docker-compose down
+
+
+## Create portainer service in docker swarm
+docker service create \
+--name portainer \
+--publish 9000:9000 \
+--constraint 'node.role == manager' \
+--mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
+portainer/portainer \
+-H unix:///var/run/docker.sock
+
+## ssh to node on DigitalOcean
+ssh -i "~/.ssh/<your key here>"  root@<your node ip here>
+
+#Init Docker Swarm
+docker swarm init
+
+## Create portainer service in docker swarm on port 80
+docker service create \
+--name portainer \
+--publish 80:9000 \
+--constraint 'node.role == manager' \
+--mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
+portainer/portainer \
+-H unix:///var/run/docker.sock
+
+## force new quarum
+docker swarm init --force-new-cluster --advertise-addr node3:2377
+
+# MySQL Service
+docker service create \
+--name mysqldb -p 3306:3306 \
+-e MYSQL_DATABASE=pageviewservice \
+-e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
+mysql
+
+# List Processes in service
+docker service ps mysqldb
+
+#Rabbit MQ Service
+docker service create \
+ --name rabbitmq -p 5671:5671 -p 5672:5672 \
+ rabbitmq
+
+ # Pageview Service
+docker service create --name pageviewservice -p 8081:8081 \
+-e SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/pageviewservice \
+-e SPRING_PROFILES_ACTIVE=mysql  \
+-e SPRING_RABBITMQ_HOST=rabbitmq \
+springframeworkguru/pageviewservice
+
+# Spring Boot Web App
+docker service create --name springbootwebapp -p 8080:8080 \
+-e SPRING_RABBITMQ_HOST=rabbitmq \
+springframeworkguru/springbootdocker
+
+
+# With Overlay Network
+docker network create --driver overlay puru-service-network
+
+# MySQL Service
+docker service create \
+--name docker-mysql -p 6603:3306 \
+-e MYSQL_DATABASE=authDB \
+-e MYSQL_ROOT_PASSWORD=password \
+-e MYSQL_PASSWORD=password \
+-e MYSQL_USER=puru \
+--network puru-service-network \
+mysql
+
+#Rabbit MQ Service
+docker service create \
+ --name rabbitmq -p 5671:5671 -p 5672:5672 \
+--network puru-service-network \
+ rabbitmq
+
+ # Authorization Service
+docker service create --name authorizationservice -p 9191:9191 \
+-e SPRING_DATASOURCE_URL=jdbc:mysql://docker-mysql:3306/authDB?createDatabaseIfNotExist=true \
+-e SPRING_DATASOURCE_USERNAME=puru \
+-e SPRING_DATASOURCE_PASSWORD=password \
+--network puru-service-network \
+purushot057/authorizationservice:latest
+
+ # Book Manager Service
+docker service create --name bookmanagerservice -p 10222:10222 \
+-e SPRING_DATASOURCE_URL=jdbc:mysql://docker-mysql:3306/book_manager?createDatabaseIfNotExist=true \
+-e SPRING_DATASOURCE_USERNAME=puru \
+-e SPRING_DATASOURCE_PASSWORD=password \
+--network puru-service-network \
+purushot057/demo:latest
+
+# Spring Boot Web App
+docker service create --name springbootwebapp -p 8080:8080 \
+-e SPRING_RABBITMQ_HOST=rabbitmq \
+--network guru-service-network \
+springframeworkguru/springbootdocker
+
+
+# Discovery Service
+docker service create --name discoveryservice -p 8761:8761 \
+--network puru-service-network \
+purushot057/discoveryservice:1.0
+
+
+# Movie Catalog Service
+docker service create --name movie-catalog-service -p 8081:8081 \
+-e EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discoveryservice:8761/eureka \
+-e EUREKA_INSTANCE_HOSTNAME=206.189.129.250 \
+--network puru-service-network \
+purushot057/movie-catalog-service:1.0 
+
+# Movie Info Service
+docker service create --name movie-info-service -p 8082:8082 \
+-e EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discoveryservice:8761/eureka \
+-e EUREKA_INSTANCE_HOSTNAME=206.189.129.250 \
+--network puru-service-network \
+purushot057/movie-info-service:1.0 
+
+# Ratings Data Service
+docker service create --name ratings-data-service -p 8083:8083 \
+-e EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discoveryservice:8761/eureka \
+-e EUREKA_INSTANCE_HOSTNAME=206.189.129.250 \
+--network puru-service-network \
+purushot057/ratings-data-service:1.0 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+docker run -p 9090:9090 prom/prometheus
+docker run -d --name=grafana88 -p 3000:3000 grafana/grafana
+
+
+
