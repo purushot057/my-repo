@@ -2,6 +2,11 @@ keytool -genkeypair -keyalg RSA -keysize 2048 -alias server -dname "CN=Hakan,OU=
 .0.0.1" -validity 3650 -keystore src/main/resources/identity.jks -storepass secret -keypass secret -deststoretype pkcs12
 
 
+ssh-keygen -m PEM -t rsa -b 4096 -C "mailto:your_email@example.com"
+
+ssh-keygen -o -t rsa -C "your.email@example.com" -b 4096   --------->> key generated with this will not work with IDE 
+
+
 https://dzone.com/articles/hakky54mutual-tls-1
 
 9619109901
