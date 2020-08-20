@@ -1,0 +1,1 @@
+java -Dzipkin.collector.kafka.bootstrap-servers=127.0.0.1:9092 -Dzipkin.storage.type=elasticsearch -jar zipkin-server-2.21.7-exec.jar
