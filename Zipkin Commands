@@ -1,1 +1,5 @@
-java -Dzipkin.collector.kafka.bootstrap-servers=127.0.0.1:9092 -Dzipkin.storage.type=elasticsearch -jar zipkin-server-2.21.7-exec.jar
+java -Dzipkin.collector.kafka.bootstrap-servers=127.0.0.1:9092 -Dzipkin.storage.type=elasticsearch -jar zipkin-server-2.21.7-exec.jar --------> Run Zipkin
+
+java -Dzipkin.collector.kafka.bootstrap-servers=127.0.0.1:9092 -jar zipkin-server-2.21.7-exec.jar -------------> Run Zipkin with in-memory storage
+
+java -jar zipkin-dependencies.jar --- (env variable STORAGE_TYPE should be elasticsearch) ---------------> Run Zipkin dependencies for storage such as MySQL, ES or Cassandra
