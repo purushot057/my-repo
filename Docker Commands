@@ -1,5 +1,9 @@
 https://springframework.guru/docker-cheat-sheet-for-spring-devlopers/
 
+mvn jib:dockerBuild
+mvn compile jib:build
+mvn spring-boot:build-image
+
 docker service create \
 --name portainer \
 --publish 9000:9000 \
