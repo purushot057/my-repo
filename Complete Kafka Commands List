@@ -1,3 +1,5 @@
+https://github.com/dilipsundarraj1/kafka-for-developers-using-spring-boot/blob/master/SetUpKafka.md
+
 Start up the Zookeeper => zookeeper-server-start.bat ..\..\config\zookeeper.properties
 Start up the Kafka Broker => kafka-server-start.bat ..\..\config\server.properties
 How to create a topic ? => kafka-topics.bat --create --topic test-topic -zookeeper localhost:2181 --replication-factor 1 --partitions 4
