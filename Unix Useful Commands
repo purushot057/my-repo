@@ -1,3 +1,5 @@
 sudo yum install wget
 tar -zxvf kafka_2.13-2.6.0.tgz
+sudo yum install nano
+
 
