@@ -75,6 +75,7 @@ docker run -d --net=new_bridge --name db training/postgres    ------------------
 docker network create -d bridge new_bridge    --------------------------> Lets create our new bridge network -d --> to specify the driver type (in this case its is bridge network)
 
 
+docker run --link ID:elasticsearch -p 5601:5601 docker.elastic.co/kibana/kibana:7.9.1
 
 
 Use below plugin config for layered jars support  ::::
